@@ -8,12 +8,12 @@ using OnionCrafter.Service.Utils;
 namespace OnionCrafter.Service.ServiceContainers
 {
     /// <summary>
-    /// Abstract implementation of the <see cref="IServiceContainer<TKey, TValue, TContainerOptions, TContainerLoggerOptions>"/>.
+    /// Represents a base service container implementation.
     /// </summary>
-    /// <typeparam name="TKey">The type of the key to identify the services.</typeparam>
-    /// <typeparam name="TValue">The type of the services to store.</typeparam>
-    /// <typeparam name="TContainerOptions">The type of options for the service container.</typeparam>
-    /// <typeparam name="TContainerLoggerOptions">The type of options for the service container logger.</typeparam>
+    /// <typeparam name="TKey">The type of the keys used to identify the services.</typeparam>
+    /// <typeparam name="TValue">The type of the services.</typeparam>
+    /// <typeparam name="TContainerOptions">The type of the options for the service container.</typeparam>
+    /// <typeparam name="TContainerLoggerOptions">The type of the options for the service container logger.</typeparam>
     public abstract class BaseServiceContainer<TKey, TValue, TContainerOptions, TContainerLoggerOptions> : IServiceContainer<TKey, TValue, TContainerOptions, TContainerLoggerOptions>
         where TContainerLoggerOptions : class, IServiceContainerLoggerOptions
         where TContainerOptions : class, IServiceContainerOptions<TContainerLoggerOptions>
@@ -30,6 +30,11 @@ namespace OnionCrafter.Service.ServiceContainers
         /// </summary>
         protected ILogger? _logger;
 
+        /// <summary>
+        /// Initializes a new instance of the BaseServiceContainer class with the specified logger and container configuration.
+        /// </summary>
+        /// <param name="logger">The logger to use for logging.</param>
+        /// <param name="containerConfig">The container configuration options.</param>
         protected BaseServiceContainer(ILogger? logger, IOptionsMonitor<TContainerOptions> containerConfig)
         {
             Config = containerConfig.Get(Name);
@@ -106,6 +111,9 @@ namespace OnionCrafter.Service.ServiceContainers
             return await Task.FromResult(_services.Count);
         }
 
+        /// <summary>
+        /// Asynchronously releases the resources used by the current instance of the <see cref="ValueTask"/> class.
+        /// </summary>
         public async ValueTask DisposeAsync()
         {
             await Task.Run(() =>
@@ -139,7 +147,7 @@ namespace OnionCrafter.Service.ServiceContainers
         /// </summary>
         /// <param name="actionResult">The actionResult of the action.</param>
         /// <param name="serviceContainerAction">The action performed.</param>
-        /// <param name="args">Additional arguments for the action.</param
+        /// <param name="args">Additional arguments for the action.</param>
 
         public void LogAction(bool actionResult, ServiceContainerAction serviceContainerAction, params object?[] args)
         {

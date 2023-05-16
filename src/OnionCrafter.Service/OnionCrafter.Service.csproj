@@ -4,7 +4,31 @@
     <TargetFramework>net7.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <GenerateDocumentationFile>True</GenerateDocumentationFile>
+    <Title>OnionCrafter.Service</Title>
+    <PackageIcon>Logo.png</PackageIcon>
+    <RepositoryUrl>https://github.com/Dtopiast/OnionCrafter.Service</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageTags>dependency-injection configuration services service-container logging-extension ddd</PackageTags>
+    <Authors>Dtopiast</Authors>
+    <Copyright>Copyright 2023 Dtopiast</Copyright>
+    <PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
+    <PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
+    <IncludeSymbols>True</IncludeSymbols>
+    <Description>Provides a set of minimal base classes and interfaces to enable fast and secure implementation of services, service containers, extensions for dependency injections and logging. </Description>
+    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
   </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="..\..\Images\Logo.png">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+    <None Include="..\..\LICENSE.txt">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="OnionCrafter.Base" Version="1.0.1" />

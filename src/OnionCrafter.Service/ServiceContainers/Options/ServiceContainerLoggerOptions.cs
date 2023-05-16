@@ -7,6 +7,9 @@ namespace OnionCrafter.Service.ServiceContainers.Options
     ///</summary>
     public class ServiceContainerLoggerOptions : IServiceContainerLoggerOptions
     {
+        /// <summary>
+        /// Default constructor for ServiceContainerLoggerOptions class.
+        /// </summary>
         public ServiceContainerLoggerOptions()
         {
             IncludeServiceNameInMessages = true;
@@ -33,6 +36,7 @@ namespace OnionCrafter.Service.ServiceContainers.Options
             SetAnyServiceFailureLogLevel = LogLevel.Error;
         }
 
+        ///<summary>
         /// Gets or sets a value indicating whether to include the service name in log messages.
         /// </summary>
         public bool IncludeServiceNameInMessages { get; set; }
@@ -62,6 +66,9 @@ namespace OnionCrafter.Service.ServiceContainers.Options
         /// </summary>
         public string SetAddServiceSuccessMessage { get; set; }
 
+        /// <summary>
+        /// Gets or sets the log level for the failure message of the "any service" action.
+        /// </summary>
         public LogLevel SetAnyServiceFailureLogLevel { get; set; }
 
         /// <summary>
@@ -118,8 +125,5 @@ namespace OnionCrafter.Service.ServiceContainers.Options
         /// Gets or sets the success message format for the "remove service" action.
         /// </summary>
         public string SetRemoveServiceSuccessMessage { get; set; }
-
-        /// <summary>
-        /// Gets or sets the log level for the failure message of the "any service" action.
     }
 }

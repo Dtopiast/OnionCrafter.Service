@@ -8,10 +8,29 @@ namespace OnionCrafter.Service.ServiceContainers
     /// </summary>
     public enum ServiceContainerAction
     {
+        /// <summary>
+        /// No action specified.
+        /// </summary>
         None = 0,
+
+        /// <summary>
+        /// Add a service to the container.
+        /// </summary>
         Add,
+
+        /// <summary>
+        /// Remove a service from the container.
+        /// </summary>
         Remove,
+
+        /// <summary>
+        /// Any action, indicating any operation on the container.
+        /// </summary>
         Any,
+
+        /// <summary>
+        /// Get a service from the container.
+        /// </summary>
         Get
     }
 
@@ -73,7 +92,7 @@ namespace OnionCrafter.Service.ServiceContainers
         /// </summary>
         /// <param name="actionResult">The result of the action.</param>
         /// <param name="serviceContainerAction">The action performed.</param>
-        /// <param name="args">Additional arguments for the action.</param
+        /// <param name="args">Additional arguments for the action.</param>
         public abstract void LogAction(bool actionResult, ServiceContainerAction serviceContainerAction, params object?[] args);
 
         /// <summary>

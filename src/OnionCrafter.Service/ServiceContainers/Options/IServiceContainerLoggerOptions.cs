@@ -94,6 +94,7 @@ namespace OnionCrafter.Service.ServiceContainers.Options
 
         /// <summary>
         /// Gets or sets the log level for the failure message of the "any service" action.
+        /// </summary>
 
         public LogLevel SetAnyServiceFailureLogLevel { get; set; }
     }
