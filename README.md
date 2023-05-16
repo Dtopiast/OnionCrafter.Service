@@ -1,4 +1,5 @@
 # OnionCrafter.Services
+[![NuGet](https://img.shields.io/nuget/v/OnionCrafter.Service.svg)](https://www.nuget.org/packages/OnionCrafter.Service/)
 
 OnionCrafter.Services es una librería de .NET 7 licenciada bajo MPL 2 que provee una serie de clases y interfaces básicas para habilitar la rápida y segura implementación de servicios, contenedores de servicios, extensiones para inyección de dependencias y logging.
 
