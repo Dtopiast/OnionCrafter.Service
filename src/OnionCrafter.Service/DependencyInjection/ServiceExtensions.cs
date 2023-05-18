@@ -255,6 +255,25 @@ namespace OnionCrafter.Service.DependencyInjection
         }
 
         /// <summary>
+        /// Checks the status of the Global Service Configuration.
+        /// </summary>
+        /// <param name="services">The service collection.</param>
+        /// <returns>The service collection.</returns>
+        public static IServiceCollection CheckStatusGlobalServiceConfiguration(this IServiceCollection services)
+        {
+            if (!_isSetupGlobalServiceConfiguration)
+            {
+                bool isOptionRegistered = services.Any(ds => typeof(IGlobalServiceOptions).IsAssignableFrom(ds.ServiceType));
+                if (isOptionRegistered)
+                    throw new InvalidOperationException("Global service configuration fue creado en un contexto inseguro, favor de usar el metodo SetGlobalServiceConfiguration");
+            }
+            else
+                throw new InvalidOperationException("Global service configuration has already been set up.");
+
+            return services;
+        }
+
+        /// <summary>
         /// Sets up the global service configuration with the specified configuration name.
         /// </summary>
         /// <typeparam name="TGlobalServiceConfiguration">The type of the global service configuration.</typeparam>
@@ -265,14 +284,11 @@ namespace OnionCrafter.Service.DependencyInjection
         public static IServiceCollection SetGlobalServiceConfiguration<TGlobalServiceConfiguration>(this IServiceCollection services, Action<TGlobalServiceConfiguration> globalServiceConfiguration, string configName)
                     where TGlobalServiceConfiguration : class, IGlobalServiceOptions
         {
-            if (!_isSetupGlobalServiceConfiguration)
-            {
-                services.AddOptions<TGlobalServiceConfiguration>(configName).Configure(globalServiceConfiguration);
-                Environment.SetEnvironmentVariable("GlobalServiceConfiguration", configName);
-                _isSetupGlobalServiceConfiguration = true;
-            }
-            else
-                throw new InvalidOperationException("Global service configuration has already been set up.");
+            services.CheckStatusGlobalServiceConfiguration();
+            services.AddOptions<TGlobalServiceConfiguration>(configName).Configure(globalServiceConfiguration);
+            Environment.SetEnvironmentVariable("GlobalServiceConfiguration", configName);
+            _isSetupGlobalServiceConfiguration = true;
+
             return services;
         }
 
