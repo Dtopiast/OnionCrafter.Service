@@ -43,7 +43,7 @@ namespace OnionCrafter.Service.ServiceContainers
     /// <typeparam name="TContainerLoggerOptions">The type of options for the service container logger.</typeparam>
     public interface IServiceContainer<TKey, TValue, TContainerOptions, TContainerLoggerOptions> : BaseServiceContainer
         where TKey : notnull, IEquatable<TKey>, IComparable<TKey>
-        where TValue : IService
+        where TValue : IBaseService
         where TContainerLoggerOptions : class, IServiceContainerLoggerOptions
         where TContainerOptions : IServiceContainerOptions<TContainerLoggerOptions>
     {
