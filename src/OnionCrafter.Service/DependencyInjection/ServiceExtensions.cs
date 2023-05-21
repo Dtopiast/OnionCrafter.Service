@@ -23,7 +23,7 @@ namespace OnionCrafter.Service.DependencyInjection
         /// <param name="services">The IServiceCollection to add the service to.</param>
         /// <returns>The IServiceCollection with the service added.</returns>
         public static IServiceCollection AddTypedScoped<TService, TImplementation>(this IServiceCollection services)
-            where TService : IService
+            where TService : IBaseService
             where TImplementation : class, TService
         {
             services.AddTypedScoped(typeof(TService), typeof(TImplementation));
@@ -56,9 +56,9 @@ namespace OnionCrafter.Service.DependencyInjection
         /// <param name="configure">A callback to configure the <typeparamref name="TOptions"/>.</param>
         /// <returns>The <see cref="IServiceCollection"/> so that additional calls can be chained.</returns>
         public static IServiceCollection AddTypedScoped<TService, TImplementation, TOptions>(this IServiceCollection services, Action<TOptions> configure)
-            where TService : IService<TOptions>
+            where TService : IBaseService<TOptions>
             where TImplementation : class, TService
-            where TOptions : class, IServiceOptions
+            where TOptions : class, IBaseServiceOptions
         {
             services.AddTypedScoped(typeof(TService), typeof(TImplementation), configure);
             return services;
@@ -78,7 +78,7 @@ namespace OnionCrafter.Service.DependencyInjection
         /// <paramref name="TImplementation"/>, or <paramref name="configure"/> are null.</exception>
         /// <exception cref="ArgumentException">Thrown when <typeparamref name="TOptions"/> does not implement <see cref="IServiceOptions"/>.</exception>
         public static IServiceCollection AddTypedScoped<TOptions>(this IServiceCollection services, Type TService, Type TImplementation, Action<TOptions> configure)
-          where TOptions : class, IServiceOptions
+          where TOptions : class, IBaseServiceOptions
         {
             services.AddTypedService(TService, TImplementation, ServiceLifetime.Scoped, configure);
             return services;
@@ -97,7 +97,7 @@ namespace OnionCrafter.Service.DependencyInjection
         /// <param name="lifetime">The <see cref="ServiceLifetime"/> of the service to be added.</param>
         /// <returns>The <see cref="IServiceCollection"/> so that additional calls can be chained.</returns>
         public static IServiceCollection AddTypedService<TOptions>(this IServiceCollection services, Type serviceType, [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors)] Type implementationType, ServiceLifetime lifetime, Action<TOptions> configure)
-            where TOptions : class, IServiceOptions
+            where TOptions : class, IBaseServiceOptions
         {
             services.AddOptions<TOptions>(implementationType.Name).Configure(configure);
 
@@ -135,7 +135,7 @@ namespace OnionCrafter.Service.DependencyInjection
         /// <param name="services">The <see cref="IServiceCollection"/> to add the service to.</param>
         /// <returns>The <see cref="IServiceCollection"/> so that additional calls can be chained.</returns>
         public static IServiceCollection AddTypedSingleton<TService, TImplementation>(this IServiceCollection services)
-            where TService : IService
+            where TService : IBaseService
             where TImplementation : class, TService
         {
             services.AddTypedSingleton(typeof(TService), typeof(TImplementation));
@@ -167,9 +167,9 @@ namespace OnionCrafter.Service.DependencyInjection
         /// <param name="configure">A configuration action to configure the <typeparamref name="TOptions"/>.</param>
         /// <returns>The <see cref="IServiceCollection"/>.</returns>
         public static IServiceCollection AddTypedSingleton<TService, TImplementation, TOptions>(this IServiceCollection services, Action<TOptions> configure)
-            where TService : IService<TOptions>
+            where TService : IBaseService<TOptions>
             where TImplementation : class, TService
-            where TOptions : class, IServiceOptions
+            where TOptions : class, IBaseServiceOptions
         {
             services.AddTypedSingleton(typeof(TService), typeof(TImplementation), configure);
             return services;
@@ -185,7 +185,7 @@ namespace OnionCrafter.Service.DependencyInjection
         /// <param name="configure">A callback to configure the options.</param>
         /// <returns>The <see cref="IServiceCollection"/> so that additional calls can be chained.</returns>
         public static IServiceCollection AddTypedSingleton<TOptions>(this IServiceCollection services, Type TService, Type TImplementation, Action<TOptions> configure)
-                 where TOptions : class, IServiceOptions
+                 where TOptions : class, IBaseServiceOptions
         {
             services.AddTypedService(TService, TImplementation, ServiceLifetime.Singleton, configure);
             return services;
@@ -198,7 +198,7 @@ namespace OnionCrafter.Service.DependencyInjection
         /// <param name="services">The <see cref="IServiceCollection"/> to add the service to.</param>
         /// <returns>The <see cref="IServiceCollection"/> so that additional calls can be chained.</returns>
         public static IServiceCollection AddTypedTransient<TService, TImplementation>(this IServiceCollection services)
-           where TService : IService
+           where TService : IBaseService
            where TImplementation : class, TService
         {
             services.AddTypedTransient(typeof(TService), typeof(TImplementation));
@@ -230,9 +230,9 @@ namespace OnionCrafter.Service.DependencyInjection
         /// <param name="configure">A configuration action to configure the <typeparamref name="TOptions"/>.</param>
         /// <returns>The <see cref="IServiceCollection"/> so that additional calls can be chained.</returns>
         public static IServiceCollection AddTypedTransient<TService, TImplementation, TOptions>(this IServiceCollection services, Action<TOptions> configure)
-            where TService : IService<TOptions>
+            where TService : IBaseService<TOptions>
             where TImplementation : class, TService
-            where TOptions : class, IServiceOptions
+            where TOptions : class, IBaseServiceOptions
         {
             services.AddTypedTransient(typeof(TService), typeof(TImplementation), configure);
             return services;
@@ -248,7 +248,7 @@ namespace OnionCrafter.Service.DependencyInjection
         /// <param name="configure">A callback to configure the <typeparamref name="TOptions"/>.</param>
         /// <returns>The <see cref="IServiceCollection"/>.</returns>
         public static IServiceCollection AddTypedTransient<TOptions>(this IServiceCollection services, Type TService, Type TImplementation, Action<TOptions> configure)
-                  where TOptions : class, IServiceOptions
+                  where TOptions : class, IBaseServiceOptions
         {
             services.AddTypedService(TService, TImplementation, ServiceLifetime.Transient, configure);
             return services;
