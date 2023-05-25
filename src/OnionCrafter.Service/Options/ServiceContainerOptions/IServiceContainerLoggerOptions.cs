@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
 
-namespace OnionCrafter.Service.ServiceContainers.Options
+namespace OnionCrafter.Service.Options.ServiceContainerOptions
 {
     /// <summary>
     /// Interface for implements options for configuring the logging behavior of the service container.

@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
 
-namespace OnionCrafter.Service.ServiceContainers.Options
+namespace OnionCrafter.Service.Options.ServiceContainerOptions
 {
     /// <summary>
     ///Implementation of the <see cref="IServiceContainerLoggerOptions"/>.

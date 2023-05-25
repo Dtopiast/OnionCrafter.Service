@@ -1,6 +1,6 @@
 ﻿using OnionCrafter.Base.Commons;
 
-namespace OnionCrafter.Service.ServiceContainers.Options
+namespace OnionCrafter.Service.Options.ServiceContainerOptions
 {
     /// <summary>
     /// Provides options for configuring a service container, including whether to use a logger and logger options.
