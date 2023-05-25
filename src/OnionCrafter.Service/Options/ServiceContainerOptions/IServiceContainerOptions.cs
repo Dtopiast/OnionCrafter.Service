@@ -6,7 +6,7 @@ namespace OnionCrafter.Service.Options.ServiceContainerOptions
     /// Provides options for configuring a service container, including whether to use a logger and logger options.
     /// </summary>
     /// <typeparam name="TLoggerOptions">The type of logger options to use.</typeparam>
-    public interface IServiceContainerOptions<TLoggerOptions> : IUseLogger
+    public interface IServiceContainerOptions<TLoggerOptions> : IBaseServiceContainerOptions, IUseLogger
         where TLoggerOptions : class, IServiceContainerLoggerOptions
     {
         /// <summary>

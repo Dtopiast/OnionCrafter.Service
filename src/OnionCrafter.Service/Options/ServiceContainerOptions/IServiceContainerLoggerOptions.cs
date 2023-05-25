@@ -5,7 +5,7 @@ namespace OnionCrafter.Service.Options.ServiceContainerOptions
     /// <summary>
     /// Interface for implements options for configuring the logging behavior of the service container.
     /// </summary>
-    public interface IServiceContainerLoggerOptions
+    public interface IServiceContainerLoggerOptions : IBaseServiceContainerLoggerOptions
     {
         /// <summary>
         /// Gets or sets a value indicating whether to include the service name in log messages.
