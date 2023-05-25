@@ -3,9 +3,9 @@
 namespace OnionCrafter.Service.Options.GlobalOptions
 {
     /// <summary>
-    /// Interface for providing global service options.
+    /// Interface for global options.
     /// </summary>
-    public interface IBaseGlobalOptions 
+    public interface IGlobalOptions : IBaseGlobalOptions, IUseLogger
     {
     }
 }

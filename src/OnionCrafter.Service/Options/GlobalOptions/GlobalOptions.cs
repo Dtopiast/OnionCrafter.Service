@@ -3,7 +3,7 @@
     /// <summary>
     /// Represents the global service options.
     /// </summary>
-    public class BaseGlobalOptions : IBaseGlobalOptions
+    public class GlobalOptions : IGlobalOptions
     {
         /// <summary>
         ///  /// Gets or sets a value indicating whether to use a logger.
