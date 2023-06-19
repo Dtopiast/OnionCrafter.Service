@@ -11,9 +11,9 @@ namespace OnionCrafter.Service.OptionsProviders
     public class OptionProvider<TGlobalServiceOptions> : IOptionsProvider<TGlobalServiceOptions>
         where TGlobalServiceOptions : class, IBaseGlobalOptions
     {
-/// <summary>
-/// Field to store a reference to the service provider.
-/// </summary>
+        /// <summary>
+        /// Field to store a reference to the service provider.
+        /// </summary>
         protected readonly IServiceProvider _serviceProvider;
 
         /// <summary>
