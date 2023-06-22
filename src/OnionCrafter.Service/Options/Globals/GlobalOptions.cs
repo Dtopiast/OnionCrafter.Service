@@ -1,13 +1,11 @@
-﻿namespace OnionCrafter.Service.Options.GlobalOptions
+﻿namespace OnionCrafter.Service.Options.Globals
 {
     /// <summary>
     /// Represents the global service options.
     /// </summary>
     public class GlobalOptions : IGlobalOptions
     {
-        /// <summary>
-        ///  /// Gets or sets a value indicating whether to use a logger.
-        /// </summary>
+        /// <inheritdoc/>
         public bool UseLogger { get; set; }
     }
 }

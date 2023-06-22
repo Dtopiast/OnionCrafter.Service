@@ -1,4 +1,6 @@
-﻿namespace OnionCrafter.Service.Options.ServiceContainerOptions
+﻿using OnionCrafter.Service.Options.ServiceContainers.Logging;
+
+namespace OnionCrafter.Service.Options.ServiceContainers
 {
     /// <summary>
     /// Implementation of the <see cref="IServiceContainerOptions{TLoggerOptions}"/> interface that uses a generic type <typeparamref name="TLoggerOptions"/> to configure a logger for a service container.
@@ -13,6 +15,7 @@
         public ServiceContainerOptions()
         {
             LoggerOptions = Activator.CreateInstance<TLoggerOptions>();
+            UseLogger = false;
         }
 
         /// <summary>
@@ -24,5 +27,8 @@
         /// Gets or sets the logger options used to configure the logger for the service container.
         /// </summary>
         public TLoggerOptions LoggerOptions { get; set; }
+
+        /// <inheritdoc/>
+        public string? SetName { get; set; }
     }
 }

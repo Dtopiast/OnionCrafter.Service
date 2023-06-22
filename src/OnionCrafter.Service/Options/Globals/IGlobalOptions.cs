@@ -1,6 +1,6 @@
 ﻿using OnionCrafter.Base.Commons;
 
-namespace OnionCrafter.Service.Options.GlobalOptions
+namespace OnionCrafter.Service.Options.Globals
 {
     /// <summary>
     /// Interface for global options.
