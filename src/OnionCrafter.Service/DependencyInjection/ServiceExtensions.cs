@@ -1,6 +1,8 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
+using OnionCrafter.Base.Utils;
+using OnionCrafter.Service.Exceptions;
+using OnionCrafter.Service.Options.Services;
 using OnionCrafter.Service.Services;
-using OnionCrafter.Service.Services.Options;
 using System.Diagnostics.CodeAnalysis;
 
 namespace OnionCrafter.Service.DependencyInjection
@@ -10,11 +12,6 @@ namespace OnionCrafter.Service.DependencyInjection
     /// </summary>
     public static class ServiceExtensions
     {
-        /// <summary>
-        /// Flag to indicate if the global service configuration has been setup.
-        /// </summary>
-        private static bool _isSetupGlobalServiceConfiguration;
-
         /// <summary>
         /// Adds a scoped service of the specified type TImplementation with an implementation of TService to the specified IServiceCollection.
         /// </summary>
@@ -99,9 +96,14 @@ namespace OnionCrafter.Service.DependencyInjection
         public static IServiceCollection AddTypedService<TOptions>(this IServiceCollection services, Type serviceType, [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors)] Type implementationType, ServiceLifetime lifetime, Action<TOptions> configure)
             where TOptions : class, IBaseServiceOptions
         {
-            services.AddOptions<TOptions>(implementationType.Name).Configure(configure);
+            EnsureValidServiceTypes(serviceType, implementationType);
 
+            if (!OptionsProviderExtensions.isSetupTheOptionsProvider)
+                services.AddOptionsProvider();
+
+            services.AddTypedOptions(configure, implementationType.Name);
             services.AddTypedService(serviceType, implementationType, lifetime);
+
             return services;
         }
 
@@ -113,14 +115,12 @@ namespace OnionCrafter.Service.DependencyInjection
         /// <param name="implementationType">The implementation type of the service.</param>
         /// <param name="lifetime">The lifetime of the service to register.</param>
         /// <returns>The <see cref="IServiceCollection"/>.</returns>
-        public static IServiceCollection AddTypedService(this IServiceCollection services, Type serviceType, [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors)] Type implementationType, ServiceLifetime lifetime)
+        public static IServiceCollection AddpedService(this IServiceCollection services, Type serviceType, [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors)] Type implementationType, ServiceLifetime lifetime)
 
         {
-            if (!_isSetupGlobalServiceConfiguration)
-                services.SetGlobalServiceConfiguration();
-
             EnsureValidServiceTypes(serviceType, implementationType);
-
+            if (!GlobalOptionsExtensions.isSetupGlobalServiceConfiguration)
+                services.SetGlobalServiceConfiguration();
             var descriptorService = new ServiceDescriptor(serviceType, implementationType, lifetime);
             services.Add(descriptorService);
             return services;
@@ -255,72 +255,6 @@ namespace OnionCrafter.Service.DependencyInjection
         }
 
         /// <summary>
-        /// Checks the status of the Global Service Configuration.
-        /// </summary>
-        /// <param name="services">The service collection.</param>
-        /// <returns>The service collection.</returns>
-        public static IServiceCollection CheckStatusGlobalServiceConfiguration(this IServiceCollection services)
-        {
-            if (!_isSetupGlobalServiceConfiguration)
-            {
-                bool isOptionRegistered = services.Any(ds => typeof(IGlobalServiceOptions).IsAssignableFrom(ds.ServiceType));
-                if (isOptionRegistered)
-                    throw new InvalidOperationException("Global service configuration fue creado en un contexto inseguro, favor de usar el metodo SetGlobalServiceConfiguration");
-            }
-            else
-                throw new InvalidOperationException("Global service configuration has already been set up.");
-
-            return services;
-        }
-
-        /// <summary>
-        /// Sets up the global service configuration with the specified configuration name.
-        /// </summary>
-        /// <typeparam name="TGlobalServiceConfiguration">The type of the global service configuration.</typeparam>
-        /// <param name="services">The service collection.</param>
-        /// <param name="globalServiceConfiguration">The global service configuration.</param>
-        /// <param name="configName">The configuration name.</param>
-        /// <returns>The service collection.</returns>
-        public static IServiceCollection SetGlobalServiceConfiguration<TGlobalServiceConfiguration>(this IServiceCollection services, Action<TGlobalServiceConfiguration> globalServiceConfiguration, string configName)
-                    where TGlobalServiceConfiguration : class, IGlobalServiceOptions
-        {
-            services.CheckStatusGlobalServiceConfiguration();
-            services.AddOptions<TGlobalServiceConfiguration>(configName).Configure(globalServiceConfiguration);
-            Environment.SetEnvironmentVariable("GlobalServiceConfiguration", configName);
-            _isSetupGlobalServiceConfiguration = true;
-
-            return services;
-        }
-
-        /// <summary>
-        /// Configures the global service options.
-        /// </summary>
-        /// <param name="services">The service collection.</param>
-        /// <returns>The service collection.</returns>
-        public static IServiceCollection SetGlobalServiceConfiguration(this IServiceCollection services)
-        {
-            var Options = new GlobalServiceOptions();
-            var globalServiceConfiguration = (GlobalServiceOptions options) =>
-            {
-                options.UseLogger = true;
-            };
-            services.SetGlobalServiceConfiguration(globalServiceConfiguration);
-            return services;
-        }
-
-        /// <summary>
-        /// Sets the global service configuration.
-        /// </summary>
-        /// <param name="services">The services.</param>
-        /// <param name="globalServiceConfiguration">The global service configuration.</param>
-        /// <returns>The service collection.</returns>
-        public static IServiceCollection SetGlobalServiceConfiguration(this IServiceCollection services, Action<GlobalServiceOptions> globalServiceConfiguration)
-        {
-            services.SetGlobalServiceConfiguration(globalServiceConfiguration);
-            return services;
-        }
-
-        /// <summary>
         /// Ensures that the service types are valid.
         /// </summary>
         /// <param name="serviceType">The type of the service.</param>
@@ -336,17 +270,40 @@ namespace OnionCrafter.Service.DependencyInjection
         /// </exception>
         private static void EnsureValidServiceTypes(Type serviceType, Type implementationType)
         {
-            if (serviceType is null)
-                throw new ArgumentNullException(nameof(serviceType));
+            serviceType.ThrowIfNull();
+            implementationType.ThrowIfNull();
+            TypeExtensions.EnsureValidImplement((typeof(IBaseService)), serviceType);
+            TypeExtensions.EnsureValidImplement(serviceType, implementationType);
+        }
 
-            if (implementationType is null)
-                throw new ArgumentNullException(nameof(implementationType));
+        /// <summary>
+        /// Checks if the given service is an implementation of IBaseService.
+        /// </summary>
+        /// <typeparam name="TService">The type of the service.</typeparam>
+        /// <param name="service">The service to check.</param>
+        /// <returns>The service if it is an implementation of IBaseService.</returns>
+        /// <exception cref="NotImplementedServiceException">Thrown when the service is null.</exception>
 
-            if (!serviceType.IsSubclassOf(typeof(IBaseService)))
-                throw new InvalidCastException($"Type {serviceType} must be a subclass of {nameof(IBaseService)}.");
+        public static TService CheckServiceImplementation<TService>(this TService? service)
+                         where TService : class, IBaseService
+        {
+            object[] args = { $"The {nameof(TService)} implementation is null." };
 
-            if (!implementationType.IsSubclassOf(serviceType))
-                throw new InvalidCastException($"Type {implementationType} must be a subclass of {serviceType}.");
+            return service.ThrowIfNull<TService, NotImplementedServiceException>(args);
+        }
+
+        /// <summary>
+        /// test
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <typeparam name="TException"></typeparam>
+        /// <param name="prop"></param>
+        /// <param name="args"></param>
+        /// <returns></returns>
+        [Obsolete]
+        public static T ThrowIfNull<T, TException>(this T? prop, params object?[] args)
+        {
+            return prop.ThrowIfNull<T, TException>();
         }
     }
 }
