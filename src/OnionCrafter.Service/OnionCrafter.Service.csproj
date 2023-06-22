@@ -21,7 +21,6 @@
     <Version>$(VersionPrefix)</Version>
 	  <AssemblyVersion>$(VersionPrefix)</AssemblyVersion>
 	  <FileVersion>$(VersionPrefix)</FileVersion>
-	  <Version>$(VersionPrefix)</Version>
 	  <SignAssembly>False</SignAssembly>
   </PropertyGroup>
 
