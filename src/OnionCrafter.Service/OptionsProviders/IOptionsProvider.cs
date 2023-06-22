@@ -1,13 +1,14 @@
-﻿using OnionCrafter.Service.Options.GlobalOptions;
-using OnionCrafter.Service.Options.ServiceOptions;
+﻿using OnionCrafter.Service.Options.Globals;
+using OnionCrafter.Service.Options.Services;
+using OnionCrafter.Service.Services;
 
 namespace OnionCrafter.Service.OptionsProviders
 {
     /// <summary>
     /// Interface for a global service with generic options.
     /// </summary>
-
-    public interface IOptionsProvider<TGlobalServiceOptions>
+    //busca el uso de IServiceProvider
+    public interface IOptionsProvider<TGlobalServiceOptions> : IBaseService
         where TGlobalServiceOptions : class, IBaseGlobalOptions
     {
         /// <summary>
@@ -18,9 +19,11 @@ namespace OnionCrafter.Service.OptionsProviders
 
         /// <summary>
         /// Gets the service options of type TServiceOptions where TServiceOptions is a non-nullable type that implements IBaseServiceOptions.
+        /// <typeparam name="TServiceOptions">The type of the service options.</typeparam>
         /// </summary>
         TServiceOptions? GetServiceOptions<TServiceOptions>()
             where TServiceOptions : class, IBaseServiceOptions;
+
         /// <summary>
         /// Gets the service options of the specified type for the given service options name.
         /// </summary>

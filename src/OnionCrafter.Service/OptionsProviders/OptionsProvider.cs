@@ -1,14 +1,15 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
-using OnionCrafter.Service.Options.GlobalOptions;
-using OnionCrafter.Service.Options.ServiceOptions;
+using OnionCrafter.Service.Options.Globals;
+using OnionCrafter.Service.Options.Services;
+using OnionCrafter.Service.Services;
 
 namespace OnionCrafter.Service.OptionsProviders
 {
     /// <summary>
     /// Represents a generic global service with options of type TGlobalServiceOptions.
     /// </summary>
-    public class OptionProvider<TGlobalServiceOptions> : IOptionsProvider<TGlobalServiceOptions>
+    public class OptionsProvider<TGlobalServiceOptions> : IOptionsProvider<TGlobalServiceOptions>
         where TGlobalServiceOptions : class, IBaseGlobalOptions
     {
         /// <summary>
@@ -19,7 +20,7 @@ namespace OnionCrafter.Service.OptionsProviders
         /// <summary>
         /// Constructor for OptionProvider class which takes an IServiceProvider as a parameter.
         /// </summary>
-        public OptionProvider(IServiceProvider serviceProvider)
+        public OptionsProvider(IServiceProvider serviceProvider)
         {
             _serviceProvider = serviceProvider;
         }
@@ -28,29 +29,28 @@ namespace OnionCrafter.Service.OptionsProviders
         /// Gets the global service options.
         /// </summary>
         /// <returns>The global service options.</returns>
+
+        public TReturn Clone<TReturn>() where TReturn : IBaseService
+        {
+            return (TReturn)MemberwiseClone();
+        }
+
+        /// <inheritdoc/>
         public TGlobalServiceOptions GetGlobalServiceOptions()
         {
             var serviceOptions = _serviceProvider.GetRequiredService<IOptions<TGlobalServiceOptions>>().Value;
             return serviceOptions;
         }
 
-        /// <summary>
-        /// Gets the service options of the specified type.
-        /// </summary>
-        /// <typeparam name="TServiceOptions">The type of service options to get.</typeparam>
-        /// <returns>The service options of the specified type.</returns>
+        /// <inheritdoc/>
+
         public TServiceOptions? GetServiceOptions<TServiceOptions>() where TServiceOptions : class, IBaseServiceOptions
         {
-            var serviceOptions = _serviceProvider.GetRequiredService<IOptions<TServiceOptions>>().Value;
+            var serviceOptions = _serviceProvider.GetRequiredService<IOptionsSnapshot<TServiceOptions>>().Value;
             return serviceOptions;
         }
 
-        /// <summary>
-        /// Gets the service options of the specified type for the given service name.
-        /// </summary>
-        /// <typeparam name="TServiceOptions">The type of service options to get.</typeparam>
-        /// <param name="serviceName">The name of the service.</param>
-        /// <returns>The service options of the specified type for the given service name.</returns>
+        /// <inheritdoc/>
         public TServiceOptions? GetServiceOptions<TServiceOptions>(string serviceName) where TServiceOptions : class, IBaseServiceOptions
         {
             var serviceOptions = _serviceProvider.GetRequiredService<IOptionsMonitor<TServiceOptions>>().Get(serviceName);
