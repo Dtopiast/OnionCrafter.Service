@@ -115,7 +115,7 @@ namespace OnionCrafter.Service.DependencyInjection
         /// <param name="implementationType">The implementation type of the service.</param>
         /// <param name="lifetime">The lifetime of the service to register.</param>
         /// <returns>The <see cref="IServiceCollection"/>.</returns>
-        public static IServiceCollection AddpedService(this IServiceCollection services, Type serviceType, [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors)] Type implementationType, ServiceLifetime lifetime)
+        public static IServiceCollection AddTypedService(this IServiceCollection services, Type serviceType, [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors)] Type implementationType, ServiceLifetime lifetime)
 
         {
             EnsureValidServiceTypes(serviceType, implementationType);
