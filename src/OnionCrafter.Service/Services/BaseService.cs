@@ -39,8 +39,8 @@ namespace OnionCrafter.Service.Services
         protected BaseService(IOptionsProvider<TGlobalOptions> optionsProvider, ILogger<BaseService<TGlobalOptions>>? logger)
         {
             _globalServiceOptions = optionsProvider.GetGlobalServiceOptions();
+            Name = GetType().Name;
             _useLogger = _globalServiceOptions.UseLogger;
-            Name = nameof(BaseService<TGlobalOptions>);
             _logger = logger.CheckLoggerImplementation(_useLogger);
         }
 
@@ -75,10 +75,9 @@ namespace OnionCrafter.Service.Services
         /// </returns>
         protected BaseService(IOptionsProvider<TGlobalOptions> optionsProvider, ILogger<BaseService<TGlobalOptions, TServiceOptions>>? logger) : base(optionsProvider, logger)
         {
-            var serviceOptions = optionsProvider.GetServiceOptions<TServiceOptions>(Name);
-            _useLogger = _globalServiceOptions.UseLogger;
-            _serviceConfig = serviceOptions.CheckServiceOptionsImplementation();
-            Name = _serviceConfig.SetServiceName ?? Name;
+            _serviceConfig = optionsProvider.GetServiceOptions<TServiceOptions>(Name).CheckServiceOptionsImplementation();
+            Name = _serviceConfig.SetName ?? Name;
+            _useLogger = _serviceConfig.UseLogger;
             _logger = logger.CheckLoggerImplementation(_useLogger);
         }
     }
