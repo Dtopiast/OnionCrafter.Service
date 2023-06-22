@@ -6,21 +6,27 @@
     <Nullable>enable</Nullable>
     <GenerateDocumentationFile>True</GenerateDocumentationFile>
     <Title>OnionCrafter.Service</Title>
-    <PackageIcon>Logo.png</PackageIcon>
+    <PackageIcon>JustLogo.png</PackageIcon>
     <RepositoryUrl>https://github.com/Dtopiast/OnionCrafter.Service</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageTags>dependency-injection configuration services service-container logging-extension ddd</PackageTags>
-    <Authors>Dtopiast</Authors>
+	  <VersionPrefix>1.0.1</VersionPrefix>
+	  <Authors>Dtopiast</Authors>
     <Copyright>Copyright 2023 Dtopiast</Copyright>
     <PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
     <PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
     <IncludeSymbols>True</IncludeSymbols>
     <Description>Provides a set of minimal base classes and interfaces to enable fast and secure implementation of services, service containers, extensions for dependency injections and logging. </Description>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+    <Version>$(VersionPrefix)</Version>
+	  <AssemblyVersion>$(VersionPrefix)</AssemblyVersion>
+	  <FileVersion>$(VersionPrefix)</FileVersion>
+	  <SignAssembly>False</SignAssembly>
+	  <PackageReadmeFile>README.md</PackageReadmeFile>
   </PropertyGroup>
 
   <ItemGroup>
-    <None Include="C:\Users\test\Pictures\Logo.png">
+    <None Include="..\..\Images\JustLogo.png">
       <Pack>True</Pack>
       <PackagePath>\</PackagePath>
     </None>
@@ -28,10 +34,14 @@
       <Pack>True</Pack>
       <PackagePath>\</PackagePath>
     </None>
+    <None Include="..\..\README.md">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="OnionCrafter.Base" Version="1.0.1" />
+    <PackageReference Include="OnionCrafter.Base" Version="1.0.4" />
   </ItemGroup>
 
 </Project>
