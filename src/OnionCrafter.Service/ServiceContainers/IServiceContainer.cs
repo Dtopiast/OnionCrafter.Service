@@ -1,4 +1,6 @@
-﻿using OnionCrafter.Service.ServiceContainers.Options;
+﻿using OnionCrafter.Service.Options.Globals;
+using OnionCrafter.Service.Options.ServiceContainers;
+using OnionCrafter.Service.Options.ServiceContainers.Logging;
 using OnionCrafter.Service.Services;
 
 namespace OnionCrafter.Service.ServiceContainers
@@ -6,7 +8,7 @@ namespace OnionCrafter.Service.ServiceContainers
     /// <summary>
     /// Enumeration of possible actions to perform in a service container.
     /// </summary>
-    public enum ServiceContainerAction
+    public enum ServiceContainerActionType
     {
         /// <summary>
         /// No action specified.
@@ -41,17 +43,17 @@ namespace OnionCrafter.Service.ServiceContainers
     /// <typeparam name="TValue">The type of the services to store.</typeparam>
     /// <typeparam name="TContainerOptions">The type of options for the service container.</typeparam>
     /// <typeparam name="TContainerLoggerOptions">The type of options for the service container logger.</typeparam>
-    public interface IServiceContainer<TKey, TValue, TContainerOptions, TContainerLoggerOptions> : BaseServiceContainer
+    /// <typeparam name="TGlobalOptions">The type of the global options.</typeparam>
+
+    public interface IServiceContainer<TKey, TValue, TGlobalOptions, TContainerOptions, TContainerLoggerOptions> :
+        IBaseServiceContainer<TContainerOptions>
+
         where TKey : notnull, IEquatable<TKey>, IComparable<TKey>
         where TValue : IBaseService
-        where TContainerLoggerOptions : class, IServiceContainerLoggerOptions
-        where TContainerOptions : IServiceContainerOptions<TContainerLoggerOptions>
+        where TContainerLoggerOptions : class, IBaseServiceContainerLoggerOptions
+        where TContainerOptions : class, IBaseServiceContainerOptions
+        where TGlobalOptions : class, IBaseGlobalOptions
     {
-        /// <summary>
-        /// Gets the configuration options for the service container.
-        /// </summary>
-        public TContainerOptions Config { get; }
-
         /// <summary>
         /// Adds a service to the container.
         /// </summary>
@@ -93,7 +95,7 @@ namespace OnionCrafter.Service.ServiceContainers
         /// <param name="actionResult">The result of the action.</param>
         /// <param name="serviceContainerAction">The action performed.</param>
         /// <param name="args">Additional arguments for the action.</param>
-        public abstract void LogAction(bool actionResult, ServiceContainerAction serviceContainerAction, params object?[] args);
+        public abstract void LogAction(bool actionResult, ServiceContainerActionType serviceContainerAction, params object?[] args);
 
         /// <summary>
         /// Removes a service from the container by its key.

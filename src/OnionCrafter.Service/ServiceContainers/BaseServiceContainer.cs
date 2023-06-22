@@ -1,7 +1,10 @@
 ﻿using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 using OnionCrafter.Base.DataAccess;
-using OnionCrafter.Service.ServiceContainers.Options;
+using OnionCrafter.Base.Utils;
+using OnionCrafter.Service.Options.Globals;
+using OnionCrafter.Service.Options.ServiceContainers;
+using OnionCrafter.Service.Options.ServiceContainers.Logging;
+using OnionCrafter.Service.OptionsProviders;
 using OnionCrafter.Service.Services;
 using OnionCrafter.Service.Utils;
 
@@ -14,39 +17,54 @@ namespace OnionCrafter.Service.ServiceContainers
     /// <typeparam name="TValue">The type of the services.</typeparam>
     /// <typeparam name="TContainerOptions">The type of the options for the service container.</typeparam>
     /// <typeparam name="TContainerLoggerOptions">The type of the options for the service container logger.</typeparam>
-    public abstract class BaseServiceContainer<TKey, TValue, TContainerOptions, TContainerLoggerOptions> : IServiceContainer<TKey, TValue, TContainerOptions, TContainerLoggerOptions>
+    /// <typeparam name="TGlobalOptions">The type of the global options.</typeparam>
+    public abstract class BaseServiceContainer<TKey, TValue, TGlobalOptions, TContainerOptions, TContainerLoggerOptions> : IServiceContainer<TKey, TValue, TGlobalOptions, TContainerOptions, TContainerLoggerOptions>
         where TContainerLoggerOptions : class, IServiceContainerLoggerOptions
+        where TGlobalOptions : class, IGlobalOptions
         where TContainerOptions : class, IServiceContainerOptions<TContainerLoggerOptions>
         where TKey : notnull, IEquatable<TKey>, IComparable<TKey>
-        where TValue : IService
+        where TValue : IBaseService
     {
-        /// <summary>
-        /// Dictionary where the services are stored with their key and value
-        /// </summary>
-        protected Dictionary<TKey, TValue> _services;
-
         /// <summary>
         /// Logger, if not implemented is null
         /// </summary>
         protected ILogger? _logger;
 
         /// <summary>
+        /// Dictionary where the services are stored with their key and value
+        /// </summary>
+        protected Dictionary<TKey, TValue> _services;
+
+        /// <summary>
+        /// Field to store the global service options.
+        /// </summary>
+        protected readonly TGlobalOptions _globalServiceOptions;
+
+        /// <summary>
+        /// Flag indicating whether to use a logger or not.
+        /// </summary>
+        protected bool _useLogger;
+
+        /// <summary>
+        ///Field with the configuration options for the service container.
+        /// </summary>
+        private readonly TContainerOptions _config;
+
+        /// <summary>
         /// Initializes a new instance of the BaseServiceContainer class with the specified logger and container configuration.
         /// </summary>
         /// <param name="logger">The logger to use for logging.</param>
-        /// <param name="containerConfig">The container configuration options.</param>
-        protected BaseServiceContainer(ILogger? logger, IOptionsMonitor<TContainerOptions> containerConfig)
+        /// <param name="optionsProvider">The options provider for the options</param>
+        protected BaseServiceContainer(ILogger? logger, IOptionsProvider<TGlobalOptions> optionsProvider)
         {
-            Config = containerConfig.Get(Name);
+            _globalServiceOptions = optionsProvider.GetGlobalServiceOptions();
+            _useLogger = _globalServiceOptions.UseLogger;
+            _config = optionsProvider.GetServiceOptions<TContainerOptions>(Name).CheckServiceOptionsImplementation();
+            Name = _config.SetName ?? GetType().Name;
+            _useLogger = _config.UseLogger;
+            _logger = logger.CheckLoggerImplementation(_config.UseLogger);
             _services = new Dictionary<TKey, TValue>();
-            _logger = logger;
-            _logger.CheckLoggerImplementation(Config.UseLogger);
         }
-
-        /// <summary>
-        /// Gets the configuration options for the service container.
-        /// </summary>
-        public TContainerOptions Config { get; set; }
 
         /// <summary>
         /// Gets the level of data access privileges in the service container.
@@ -61,7 +79,7 @@ namespace OnionCrafter.Service.ServiceContainers
         /// <summary>
         /// Gets the name of the service container
         /// </summary>
-        public string Name => GetType().Name;
+        public string Name { get; protected set; }
 
         /// <summary>
         /// Adds a service to the container.
@@ -72,7 +90,7 @@ namespace OnionCrafter.Service.ServiceContainers
         public virtual async Task<bool> AddServiceAsync(TKey key, TValue value)
         {
             var actionResult = !await AnyServiceAsync(key) && _services.TryAdd(key, value);
-            LogAction(actionResult, ServiceContainerAction.Add);
+            LogAction(actionResult, ServiceContainerActionType.Add);
             return await Task.FromResult(actionResult);
         }
 
@@ -85,7 +103,7 @@ namespace OnionCrafter.Service.ServiceContainers
         public virtual async Task<bool> AnyServiceAsync(TKey key)
         {
             var actionResult = _services.ContainsKey(key);
-            LogAction(actionResult, ServiceContainerAction.Any);
+            LogAction(actionResult, ServiceContainerActionType.Any);
             return await Task.FromResult(actionResult);
         }
 
@@ -98,7 +116,7 @@ namespace OnionCrafter.Service.ServiceContainers
         public virtual async Task<bool> AnyServiceAsync(TValue value)
         {
             var actionResult = _services.ContainsValue(value);
-            LogAction(actionResult, ServiceContainerAction.Any);
+            LogAction(actionResult, ServiceContainerActionType.Any);
             return await Task.FromResult(actionResult);
         }
 
@@ -137,7 +155,7 @@ namespace OnionCrafter.Service.ServiceContainers
                 result = _services.GetValueOrDefault(key);
                 actionResult = result != null;
             }
-            LogAction(actionResult, ServiceContainerAction.Get);
+            LogAction(actionResult, ServiceContainerActionType.Get);
 
             return await Task.FromResult(result);
         }
@@ -146,36 +164,34 @@ namespace OnionCrafter.Service.ServiceContainers
         /// Logs an action performed on the service container.
         /// </summary>
         /// <param name="actionResult">The actionResult of the action.</param>
-        /// <param name="serviceContainerAction">The action performed.</param>
+        /// <param name="serviceContainerActionType">The action performed.</param>
         /// <param name="args">Additional arguments for the action.</param>
 
-        public void LogAction(bool actionResult, ServiceContainerAction serviceContainerAction, params object?[] args)
+        public void LogAction(bool actionResult, ServiceContainerActionType serviceContainerActionType, params object?[] args)
         {
-            if (!Config.UseLogger)
+            if (!_config.UseLogger)
                 return;
 
-            var message = serviceContainerAction switch
+            var logAction = serviceContainerActionType switch
             {
-                ServiceContainerAction.Add => actionResult ? Config.LoggerOptions.SetAddServiceSuccessMessage : Config.LoggerOptions.SetAddServiceFailureMessage,
-                ServiceContainerAction.Remove => actionResult ? Config.LoggerOptions.SetRemoveServiceSuccessMessage : Config.LoggerOptions.SetRemoveServiceFailureMessage,
-                ServiceContainerAction.Any => actionResult ? Config.LoggerOptions.SetAnyServiceSuccessMessage : Config.LoggerOptions.SetAnyServiceFailureMessage,
-                ServiceContainerAction.Get => actionResult ? Config.LoggerOptions.SetGetServiceSuccessMessage : Config.LoggerOptions.SetGetServiceFailureMessage,
+                ServiceContainerActionType.Add => _config.LoggerOptions.AddServiceLoggingOptions,
+                ServiceContainerActionType.Remove => _config.LoggerOptions.RemoveServiceLoggingOptions,
+                ServiceContainerActionType.Any => _config.LoggerOptions.AnyServiceLoggingOptions,
+                ServiceContainerActionType.Get => _config.LoggerOptions.GetServiceLoggingOptions,
                 _ => null
             };
 
-            if (message != null)
-            {
-                var logLevel = serviceContainerAction switch
-                {
-                    ServiceContainerAction.Add => actionResult ? Config.LoggerOptions.SetAddServiceSuccessLogLevel : Config.LoggerOptions.SetAddServiceFailureLogLevel,
-                    ServiceContainerAction.Remove => actionResult ? Config.LoggerOptions.SetRemoveServiceSuccessLogLevel : Config.LoggerOptions.SetRemoveServiceFailureLogLevel,
-                    ServiceContainerAction.Any => actionResult ? Config.LoggerOptions.SetAnyServiceSuccessLogLevel : Config.LoggerOptions.SetAnyServiceFailureLogLevel,
-                    ServiceContainerAction.Get => actionResult ? Config.LoggerOptions.SetGetServiceSuccessLogLevel : Config.LoggerOptions.SetGetServiceFailureLogLevel,
-                    _ => LogLevel.None
-                };
+            logAction.ThrowIfNull();
 
-                _logger?.Log(logLevel, message.Replace(Config.LoggerOptions.ReplaceZoneStringWithServiceName, Name), args);
+            LogLevel logLevel = actionResult ? logAction.SuccessLogLevel : logAction.FailureLogLevel;
+            string message = actionResult ? logAction.SuccessMessage : logAction.FailureMessage;
+
+            if (!string.IsNullOrEmpty(_config.LoggerOptions.ReplaceZoneStringWithServiceName))
+            {
+                message = message.Replace(_config.LoggerOptions.ReplaceZoneStringWithServiceName, Name);
             }
+
+            _logger?.Log(logLevel, message, args);
         }
 
         /// <summary>
@@ -191,7 +207,7 @@ namespace OnionCrafter.Service.ServiceContainers
             {
                 actionResult = _services.Remove(key);
             }
-            LogAction(actionResult, ServiceContainerAction.Remove);
+            LogAction(actionResult, ServiceContainerActionType.Remove);
             return await Task.FromResult(actionResult);
         }
     }
